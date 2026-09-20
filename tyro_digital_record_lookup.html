@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-slate-50">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tyro Digital Private Limited - Record Lookup</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons CDN -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        tyro: {
+                            50: '#f0fdfa',
+                            100: '#ccfbf1',
+                            500: '#14b8a6',
+                            600: '#0d9488',
+                            700: '#0f766e',
+                            800: '#115e59',
+                            900: '#134e4a',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            #printable-area, #printable-area * {
+                visibility: visible;
+            }
+            #printable-area {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+            }
+            .no-print {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+<body class="h-full text-slate-800 font-sans flex flex-col justify-between">
+
+    <!-- MAIN CONTAINER -->
+    <div class="min-h-screen flex flex-col">
+        
+        <!-- HEADER / NAVIGATION -->
+        <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+                <!-- Branding -->
+                <div class="flex items-center space-x-3">
+                    <div class="w-11 h-11 bg-gradient-to-tr from-tyro-800 via-tyro-600 to-teal-400 rounded-xl flex items-center justify-center text-white shadow-md shadow-teal-200">
+                        <i data-lucide="shield-check" class="w-6 h-6"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-bold text-slate-900 tracking-tight leading-none">TYRO DIGITAL</h1>
+                        <p class="text-xs font-semibold text-tyro-600 tracking-wider uppercase mt-1">Private Limited</p>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- MAIN CONTENT AREA -->
+        <main class="flex-grow max-w-4xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+            
+            <!-- Page Title Header -->
+            <div class="text-center mb-8">
+                <h2 class="text-2xl sm:text-3xl font-bold text-slate-900">Application status</h2>
+            </div>
+
+            <!-- SEARCH FORM CARD WITH SELECT DROPDOWN -->
+            <div class="bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden mb-8 transition-all">
+                <div class="p-6 sm:p-8">
+                    <form id="searchForm" onsubmit="handleSearch(event)">
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                            
+                            <!-- Search Criteria Select Dropdown -->
+                            <div class="md:col-span-1">
+                                <label for="searchTypeSelect" class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Search Option</label>
+                                <div class="relative">
+                                    <select id="searchTypeSelect" onchange="updateSearchMode()" class="block w-full py-3.5 pl-4 pr-10 text-slate-900 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-tyro-500 focus:border-tyro-500 text-sm font-semibold appearance-none transition cursor-pointer">
+                                        <option value="appId">Application ID</option>
+                                        <option value="mobile">Mobile Number</option>
+                                        <option value="aadhar">Aadhaar Number</option>
+                                    </select>
+                                    <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-slate-500">
+                                        <i data-lucide="chevron-down" class="w-5 h-5"></i>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Search Input Field -->
+                            <div class="md:col-span-2">
+                                <label id="inputLabel" for="searchInput" class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Application ID</label>
+                                <div class="relative rounded-xl shadow-sm">
+                                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
+                                        <i data-lucide="search" id="inputIcon" class="w-5 h-5"></i>
+                                    </div>
+                                    <input type="text" id="searchInput" required autocomplete="off"
+                                        class="block w-full pl-11 pr-12 py-3.5 text-slate-900 border border-slate-300 rounded-xl focus:ring-2 focus:ring-tyro-500 focus:border-tyro-500 text-base placeholder-slate-400 transition"
+                                        placeholder="Enter Application ID (e.g. 12345/67890)...">
+                                    <button type="button" onclick="clearInput()" id="clearInputBtn" class="hidden absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-600">
+                                        <i data-lucide="x-circle" class="w-5 h-5"></i>
+                                    </button>
+                                </div>
+                                <p id="inputHelp" class="mt-2 text-xs text-slate-500">e.g., 12345/67890 or APP1001</p>
+                            </div>
+
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="flex flex-col sm:flex-row items-center gap-3">
+                            <button type="submit" class="w-full sm:w-auto flex-1 bg-tyro-600 hover:bg-tyro-700 text-white font-semibold py-3.5 px-6 rounded-xl shadow-md shadow-teal-100 hover:shadow-lg transition duration-200 flex items-center justify-center space-x-2">
+                                <i data-lucide="search" class="w-4 h-4"></i>
+                                <span>Get Details</span>
+                            </button>
+                            <button type="button" onclick="resetSearch()" class="w-full sm:w-auto px-6 py-3.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl transition duration-200 flex items-center justify-center space-x-2">
+                                <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
+                                <span>Reset</span>
+                            </button>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+
+            <!-- DISPLAY AREA FOR RESULTS & ERROR -->
+            
+            <!-- ERROR MESSAGE DISPLAY ("No data found") -->
+            <div id="errorBox" class="hidden bg-rose-50 border border-rose-200 rounded-2xl p-6 sm:p-8 text-center transition-all animate-fade-in shadow-sm">
+                <div class="w-14 h-14 bg-rose-100 rounded-full flex items-center justify-center mx-auto text-rose-600 mb-4">
+                    <i data-lucide="alert-circle" class="w-7 h-7"></i>
+                </div>
+                <h3 class="text-xl font-bold text-rose-900 mb-1">No data found</h3>
+                <p class="text-slate-600 text-sm max-w-sm mx-auto mb-6">No matching applicant record could be found in our database. Please verify the value entered and try again.</p>
+                <button onclick="focusSearch()" class="inline-flex items-center space-x-2 text-xs font-semibold text-rose-700 bg-rose-100 hover:bg-rose-200 px-4 py-2.5 rounded-lg transition">
+                    <i data-lucide="arrow-left" class="w-4 h-4"></i>
+                    <span>Try Again</span>
+                </button>
+            </div>
+
+            <!-- DETAILS CARD (EXACT 7 FIELDS) -->
+            <div id="detailsCard" class="hidden bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden transition-all">
+                
+                <div id="printable-area">
+                    <!-- Details Header -->
+                    <div class="bg-gradient-to-r from-slate-900 via-tyro-900 to-teal-950 p-6 text-white flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div>
+                            <div class="flex items-center space-x-2">
+                                <span class="bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-xs px-2.5 py-0.5 rounded-full font-medium flex items-center">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 mr-1.5 animate-pulse"></span> Verified Record
+                                </span>
+                                <span class="text-slate-300 text-xs">Tyro DB Search</span>
+                            </div>
+                            <h3 class="text-xl font-bold mt-1 text-white" id="res-name-title">Applicant Details</h3>
+                        </div>
+                        <div class="no-print flex items-center space-x-2">
+                            <button onclick="copyRecordDetails()" class="px-3 py-1.5 bg-white/10 hover:bg-white/20 text-white rounded-lg text-xs font-medium transition flex items-center space-x-1.5 backdrop-blur-sm">
+                                <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                                <span>Copy Details</span>
+                            </button>
+                            <button onclick="window.print()" class="px-3 py-1.5 bg-white/10 hover:bg-white/20 text-white rounded-lg text-xs font-medium transition flex items-center space-x-1.5 backdrop-blur-sm">
+                                <i data-lucide="printer" class="w-3.5 h-3.5"></i>
+                                <span>Print</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Details Grid -->
+                    <div class="p-6 sm:p-8">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            
+                            <!-- Application ID -->
+                            <div class="p-4 rounded-xl bg-slate-50 border border-slate-100 flex items-start space-x-4">
+                                <div class="w-10 h-10 rounded-lg bg-teal-100 text-tyro-700 flex items-center justify-center shrink-0">
+                                    <i data-lucide="hash" class="w-5 h-5"></i>
+                                </div>
+                                <div>
+                                    <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Application ID</p>
+                                    <p class="text-base font-bold text-slate-900 mt-0.5" id="res-appId">-</p>
+                                </div>
+                            </div>
+
+                            <!-- Name -->
+                            <div class="p-4 rounded-xl bg-slate-50 border border-slate-100 flex items-start space-x-4">
+                                <div class="w-10 h-10 rounded-lg bg-teal-100 text-tyro-700 flex items-center justify-center shrink-0">
+                                    <i data-lucide="user" class="w-5 h-5"></i>
+                                </div>
+                                <div>
+                                    <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Name</p>
+                                    <p class="text-base font-bold text-slate-900 mt-0.5" id="res-name">-</p>
+                                </div>
+                            </div>
+
+                            <!-- Mobile Number -->
+                            <div class="p-4 rounded-xl bg-slate-50 border border-slate-100 flex items-start space-x-4">
+                                <div class="w-10 h-10 rounded-lg bg-teal-100 text-tyro-700 flex items-center justify-center shrink-0">
+                                    <i data-lucide="phone" class="w-5 h-5"></i>
+                                </div>
+                                <div>
+                                    <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Mobile Number</p>
+                                    <p class="text-base font-bold text-slate-900 mt-0.5" id="res-mobile">-</p>
+                                </div>
+                            </div>
+
+                            <!-- Aadhaar Number -->
+                            <div class="p-4 rounded-xl bg-slate-50 border border-slate-100 flex items-start space-x-4">
+                                <div class="w-10 h-10 rounded-lg bg-teal-100 text-tyro-700 flex items-center justify-center shrink-0">
+                                    <i data-lucide="credit-card" class="w-5 h-5"></i>
+                                </div>
+                                <div>
+                                    <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Aadhaar Number</p>
+                                    <p class="text-base font-bold text-slate-900 mt-0.5" id="res-aadhar">-</p>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <hr class="my-6 border-slate-100">
+
+                        <!-- Location Grid -->
+                        <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-4">Address Details</h4>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                            
+                            <!-- Village -->
+                            <div class="p-4 rounded-xl bg-slate-50 border border-slate-100 flex items-center space-x-3">
+                                <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0">
+                                    <i data-lucide="home" class="w-4 h-4"></i>
+                                </div>
+                                <div>
+                                    <p class="text-xs text-slate-500 font-medium">Village</p>
+                                    <p class="text-sm font-bold text-slate-800" id="res-village">-</p>
+                                </div>
+                            </div>
+
+                            <!-- Mandal -->
+                            <div class="p-4 rounded-xl bg-slate-50 border border-slate-100 flex items-center space-x-3">
+                                <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0">
+                                    <i data-lucide="map-pin" class="w-4 h-4"></i>
+                                </div>
+                                <div>
+                                    <p class="text-xs text-slate-500 font-medium">Mandal</p>
+                                    <p class="text-sm font-bold text-slate-800" id="res-mandal">-</p>
+                                </div>
+                            </div>
+
+                            <!-- District -->
+                            <div class="p-4 rounded-xl bg-slate-50 border border-slate-100 flex items-center space-x-3">
+                                <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0">
+                                    <i data-lucide="map" class="w-4 h-4"></i>
+                                </div>
+                                <div>
+                                    <p class="text-xs text-slate-500 font-medium">District</p>
+                                    <p class="text-sm font-bold text-slate-800" id="res-district">-</p>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                    
+                    <div class="bg-slate-50 border-t border-slate-100 px-6 py-3 text-center text-xs text-slate-400">
+                        Official verification record generated by Tyro Digital Private Limited
+                    </div>
+                </div>
+
+            </div>
+
+        </main>
+
+        <!-- FOOTER -->
+        <footer class="bg-white border-t border-slate-200 py-6">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center sm:flex sm:justify-between sm:items-center">
+                <p class="text-xs text-slate-500">&copy; 2026 Tyro Digital Private Limited. All rights reserved.</p>
+                <div class="mt-2 sm:mt-0 flex justify-center space-x-4 text-xs text-slate-400">
+                    <span>Privacy Policy</span>
+                    <span>&bull;</span>
+                    <span>Terms of Service</span>
+                </div>
+            </div>
+        </footer>
+
+    </div>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        // CLIENT-SIDE SAMPLE DATABASE
+        const mockDatabase = [
+            {
+                appId: "12345/67890",
+                name: "Koteswara Rao",
+                mobile: "9876543210",
+                aadhar: "XXXX-XXXX-1012",
+                village: "Gachibowli",
+                mandal: "Serilingampally",
+                district: "Ranga Reddy"
+            },
+            {
+                appId: "98765/43210",
+                name: "Ananya Sharma",
+                mobile: "9123456789",
+                aadhar: "XXXX-XXXX-2123",
+                village: "Kukatpally",
+                mandal: "Kukatpally",
+                district: "Medchal-Malkajgiri"
+            },
+            {
+                appId: "APP1001",
+                name: "Venkata Raman",
+                mobile: "9988776655",
+                aadhar: "XXXX-XXXX-3234",
+                village: "Tadepalle",
+                mandal: "Tadepalle",
+                district: "Guntur"
+            },
+            {
+                appId: "54321/12345",
+                name: "Suresh Babu",
+                mobile: "9440112233",
+                aadhar: "XXXX-XXXX-4345",
+                village: "Benz Circle",
+                mandal: "Vijayawada Urban",
+                district: "NTR District"
+            },
+            {
+                appId: "APP1005",
+                name: "Priyanka Reddy",
+                mobile: "8899001122",
+                aadhar: "XXXX-XXXX-5456",
+                village: "Shamshabad",
+                mandal: "Shamshabad",
+                district: "Ranga Reddy"
+            }
+        ];
+
+        let currentActiveRecord = null;
+
+        // HELPER TO SAFELY CALL LUCIDE ICONS
+        function safeLucideIcons() {
+            if (typeof lucide !== 'undefined' && lucide.createIcons) {
+                try {
+                    lucide.createIcons();
+                } catch (err) {
+                    console.warn("Lucide icons error:", err);
+                }
+            }
+        }
+
+        // UPDATE INPUT ATTRIBUTES ACCORDING TO DROPDOWN SELECTION
+        function updateSearchMode() {
+            const selectEl = document.getElementById('searchTypeSelect');
+            if (!selectEl) return;
+            const selectedType = selectEl.value;
+            const inputLabel = document.getElementById('inputLabel');
+            const searchInput = document.getElementById('searchInput');
+            const inputIcon = document.getElementById('inputIcon');
+            const inputHelp = document.getElementById('inputHelp');
+
+            if (!searchInput || !inputLabel || !inputIcon || !inputHelp) return;
+
+            if (selectedType === 'appId') {
+                inputLabel.innerText = "Application ID";
+                searchInput.placeholder = "Enter Application ID (e.g. 12345/67890)...";
+                searchInput.type = "text";
+                searchInput.maxLength = 30;
+                inputHelp.innerText = "Format e.g., 12345/67890 or APP1001";
+                inputIcon.setAttribute('data-lucide', 'hash');
+            } else if (selectedType === 'mobile') {
+                inputLabel.innerText = "Mobile Number";
+                searchInput.placeholder = "Enter 10-digit Mobile Number...";
+                searchInput.type = "tel";
+                searchInput.maxLength = 10;
+                inputHelp.innerText = "Enter valid 10-digit registered phone number";
+                inputIcon.setAttribute('data-lucide', 'phone');
+            } else if (selectedType === 'aadhar') {
+                inputLabel.innerText = "Aadhaar Number";
+                searchInput.placeholder = "Enter 12-digit Aadhaar Number...";
+                searchInput.type = "text";
+                searchInput.maxLength = 12;
+                inputHelp.innerText = "Enter 12-digit UIDAI Aadhaar Number";
+                inputIcon.setAttribute('data-lucide', 'credit-card');
+            }
+
+            safeLucideIcons();
+            searchInput.focus();
+        }
+
+        // FORMAT AADHAAR WITH SPACES / MASKED FORMAT
+        function formatAadhaar(num) {
+            if (!num) return num;
+            if (num.startsWith('XXXX')) return num;
+            if (num.length === 12) {
+                return `XXXX-XXXX-${num.slice(8, 12)}`;
+            }
+            return num;
+        }
+
+        // HANDLE SEARCH ACTION
+        function handleSearch(e) {
+            if (e && e.preventDefault) e.preventDefault();
+            const selectEl = document.getElementById('searchTypeSelect');
+            const searchInput = document.getElementById('searchInput');
+            if (!selectEl || !searchInput) return;
+
+            const selectedType = selectEl.value;
+            const query = searchInput.value.trim();
+
+            document.getElementById('detailsCard').classList.add('hidden');
+            document.getElementById('errorBox').classList.add('hidden');
+            currentActiveRecord = null;
+
+            if (!query) return;
+
+            // Search query match
+            const record = mockDatabase.find(item => {
+                const targetValue = item[selectedType] ? item[selectedType].toString().trim().toLowerCase() : '';
+                return targetValue === query.toLowerCase();
+            });
+
+            if (record) {
+                currentActiveRecord = record;
+                // Update 7 requested fields
+                document.getElementById('res-name-title').innerText = record.name;
+                document.getElementById('res-appId').innerText = record.appId;
+                document.getElementById('res-name').innerText = record.name;
+                document.getElementById('res-mobile').innerText = record.mobile;
+                document.getElementById('res-aadhar').innerText = formatAadhaar(record.aadhar);
+                document.getElementById('res-village').innerText = record.village;
+                document.getElementById('res-mandal').innerText = record.mandal;
+                document.getElementById('res-district').innerText = record.district;
+
+                document.getElementById('detailsCard').classList.remove('hidden');
+                document.getElementById('detailsCard').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            } else {
+                // Display error message "No data found"
+                document.getElementById('errorBox').classList.remove('hidden');
+            }
+        }
+
+        // COPY DETAILS FUNCTION
+        function copyRecordDetails(evt) {
+            if (!currentActiveRecord) return;
+            const detailsText = `TYRO DIGITAL PRIVATE LIMITED - RECORD DETAILS\n` +
+                `Application ID: ${currentActiveRecord.appId}\n` +
+                `Name: ${currentActiveRecord.name}\n` +
+                `Mobile Number: ${currentActiveRecord.mobile}\n` +
+                `Aadhaar Number: ${currentActiveRecord.aadhar}\n` +
+                `Village: ${currentActiveRecord.village}\n` +
+                `Mandal: ${currentActiveRecord.mandal}\n` +
+                `District: ${currentActiveRecord.district}`;
+
+            const textArea = document.createElement("textarea");
+            textArea.value = detailsText;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textArea);
+
+            const copyBtn = (evt && evt.currentTarget) || (window.event && window.event.currentTarget);
+            if (copyBtn) {
+                const originalHTML = copyBtn.innerHTML;
+                copyBtn.innerHTML = `<i data-lucide="check" class="w-3.5 h-3.5 text-emerald-400"></i><span>Copied!</span>`;
+                safeLucideIcons();
+                setTimeout(() => {
+                    copyBtn.innerHTML = originalHTML;
+                    safeLucideIcons();
+                }, 2000);
+            }
+        }
+
+        // CLEAR INPUT
+        function clearInput() {
+            const input = document.getElementById('searchInput');
+            if (input) {
+                input.value = '';
+                document.getElementById('clearInputBtn').classList.add('hidden');
+                input.focus();
+            }
+        }
+
+        // RESET SEARCH
+        function resetSearch() {
+            clearInput();
+            document.getElementById('detailsCard').classList.add('hidden');
+            document.getElementById('errorBox').classList.add('hidden');
+            const selectEl = document.getElementById('searchTypeSelect');
+            if (selectEl) {
+                selectEl.value = 'appId';
+                updateSearchMode();
+            }
+        }
+
+        function focusSearch() {
+            const input = document.getElementById('searchInput');
+            if (input) {
+                input.focus();
+                input.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
+        // EXPOSE FUNCTIONS GLOBALLY ON WINDOW TO PREVENT SCOPE ERRORS
+        window.updateSearchMode = updateSearchMode;
+        window.handleSearch = handleSearch;
+        window.clearInput = clearInput;
+        window.resetSearch = resetSearch;
+        window.focusSearch = focusSearch;
+        window.copyRecordDetails = copyRecordDetails;
+
+        // INITIALIZATION AND EVENT BINDING
+        function initApp() {
+            safeLucideIcons();
+            updateSearchMode();
+
+            // Clear input button handler
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput) {
+                searchInput.addEventListener('input', function() {
+                    const clearBtn = document.getElementById('clearInputBtn');
+                    if (clearBtn) {
+                        if (this.value.length > 0) {
+                            clearBtn.classList.remove('hidden');
+                        } else {
+                            clearBtn.classList.add('hidden');
+                        }
+                    }
+                });
+            }
+
+            // Direct event listener on dropdown select
+            const searchTypeSelect = document.getElementById('searchTypeSelect');
+            if (searchTypeSelect) {
+                searchTypeSelect.addEventListener('change', updateSearchMode);
+            }
+
+            // Direct event listener on search form
+            const searchForm = document.getElementById('searchForm');
+            if (searchForm) {
+                searchForm.addEventListener('submit', handleSearch);
+            }
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initApp);
+        } else {
+            initApp();
+        }
+    </script>
+</body>
+</html>
